@@ -73,6 +73,14 @@ async function deleteTodo(id) {
   }
 }
 
+async function updateTodo(id, body) {
+  try {
+    // Validation id, deadline and body taskList
+  } catch (err) {
+    throw err;
+  }
+}
+
 module.exports = {
   getTodosById,
   createTodo,
