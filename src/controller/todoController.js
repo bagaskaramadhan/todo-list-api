@@ -4,8 +4,8 @@ const service = require("../services/todoServices/todo");
 
 exports.getTodos = async (req, res) => {
   try {
-    const allTodos = await todoModel.find();
-    res.status(200).json(allTodos);
+    const result = await service.getTodos();
+    res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

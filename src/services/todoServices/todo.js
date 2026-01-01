@@ -2,6 +2,14 @@ const dayjs = require("dayjs");
 const todoModel = require("../../model/todoModel");
 const mongoose = require("mongoose");
 
+async function getTodos() {
+  try {
+    return await todoModel.find({ active: true });
+  } catch (err) {
+    throw err;
+  }
+}
+
 async function getTodosById(id) {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -11,11 +19,16 @@ async function getTodosById(id) {
     if (!checkData) {
       throw new Error("Todo not found");
     }
-    return await todoModel.findById(id);
+    const result = await todoModel.findOne({ _id: id, active: true });
+    if (!result) {
+      throw new Error("Todo not found");
+    }
+    return result;
   } catch (err) {
     throw err;
   }
 }
+
 async function createTodo(body) {
   try {
     // validation deadline
@@ -111,4 +124,5 @@ module.exports = {
   createTodo,
   deleteTodo,
   updateTodo,
+  getTodos,
 };
