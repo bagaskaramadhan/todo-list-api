@@ -1,5 +1,3 @@
-const todoModel = require("../model/todoModel");
-const mongoose = require("mongoose");
 const service = require("../services/todoServices/todo");
 
 exports.getTodos = async (req, res) => {
