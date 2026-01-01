@@ -1,4 +1,4 @@
-# 📝 Todo List API
+# Todo List API
 
 ## 1. Description
 An efficient Task Management API (Todo List) built using RESTful architecture.
