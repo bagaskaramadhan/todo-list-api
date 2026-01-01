@@ -18,6 +18,7 @@ const todoSchema = new mongoose.Schema(
     completedAt: { type: Date },
     deadline: { type: Date, required: true },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
   },
   {
     versionKey: false,
