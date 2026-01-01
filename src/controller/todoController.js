@@ -4,8 +4,8 @@ const service = require("../services/todoServices/todo");
 
 exports.getTodos = async (req, res) => {
   try {
-    const allTodos = await todoModel.find();
-    res.status(200).json(allTodos);
+    const result = await service.getTodos();
+    res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -39,24 +39,16 @@ exports.createTodo = async (req, res) => {
 exports.updateTodo = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        message: "Invalid Todo Id",
-      });
-    }
-    const checkData = await todoModel.findById(id);
-    if (!checkData) {
-      return res.status(404).json({ message: "Todo not found" });
-    }
     const body = {
       title: req.body.title,
       description: req.body.description || "",
       taskList: req.body.taskList,
       deadline: new Date(req.body.deadline),
       completed: req.body.completed,
+      updatedAt: new Date(),
     };
-    const todo = await todoModel.findByIdAndUpdate(id, body);
-    res.status(200).json(todo);
+    await service.updateTodo(id, body);
+    res.status(200).json({ message: "Todo Updated" });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
