@@ -1,14 +1,17 @@
 const userModel = require("../../model/userModel");
+const bcrypt = require("bcrypt");
 
 async function createUser(body) {
   try {
     await validationCreateUser(body);
+    body.password = await hashPassword(body.password);
     const userBody = new userModel(body);
     await userBody.save();
   } catch (err) {
     throw err;
   }
 }
+
 async function validationCreateUser(body) {
   try {
     // data validation
@@ -35,6 +38,36 @@ async function validationCreateUser(body) {
   }
 }
 
+async function hashPassword(password) {
+  try {
+    if (!password) {
+      throw new Error("Password is required");
+    }
+    return await bcrypt.hash(password, 12);
+  } catch (err) {
+    throw err;
+  }
+}
+
+async function loginUser(body) {
+  try {
+    const checkUser = await userModel.findOne({ email: body.email });
+    if (!checkUser) {
+      throw new Error("Email not found");
+    }
+    const isPasswordValid = await bcrypt.compare(
+      body.password,
+      checkUser.password
+    );
+    if (!isPasswordValid) {
+      throw new Error("Invalid password");
+    }
+  } catch (err) {
+    throw err;
+  }
+}
+
 module.exports = {
   createUser,
+  loginUser,
 };
