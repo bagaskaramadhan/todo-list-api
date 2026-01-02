@@ -1,5 +1,8 @@
 const userModel = require("../../model/userModel");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
+const { SALT_ROUNDS, JWT_SECRET, JWT_EXPIRES_IN } = require("../../config/env");
+const jwt = require("jsonwebtoken");
 
 async function createUser(body) {
   try {
@@ -43,7 +46,7 @@ async function hashPassword(password) {
     if (!password) {
       throw new Error("Password is required");
     }
-    return await bcrypt.hash(password, 12);
+    return await bcrypt.hash(password, SALT_ROUNDS);
   } catch (err) {
     throw err;
   }
@@ -55,16 +58,37 @@ async function loginUser(body) {
     if (!checkUser) {
       throw new Error("Email not found");
     }
-    const isPasswordValid = await bcrypt.compare(
+    const isPasswordValid = await comparePassword(
       body.password,
       checkUser.password
     );
     if (!isPasswordValid) {
       throw new Error("Invalid password");
     }
+
+    const accessToken = await generateAccessToken({
+      username: checkUser.username,
+    });
+    return {
+      accessToken,
+      user: {
+        username: checkUser.username,
+        email: checkUser.email,
+      },
+    };
   } catch (err) {
     throw err;
   }
+}
+
+async function comparePassword(inputPassword, storedHashedPassword) {
+  return await bcrypt.compare(inputPassword, storedHashedPassword);
+}
+
+async function generateAccessToken(payload) {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
+  });
 }
 
 module.exports = {

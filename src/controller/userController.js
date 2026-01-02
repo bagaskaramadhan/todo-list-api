@@ -6,8 +6,8 @@ exports.loginUser = async (req, res) => {
       email: req.body.email,
       password: req.body.password,
     };
-    await userService.loginUser(body);
-    res.status(200).json({ message: "Login Successful" });
+    const result = await userService.loginUser(body);
+    res.status(200).json({ message: "Login Successful", data: result });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
