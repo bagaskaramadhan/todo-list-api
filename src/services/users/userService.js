@@ -1,6 +1,5 @@
 const userModel = require("../../model/userModel");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
 const { SALT_ROUNDS, JWT_SECRET, JWT_EXPIRES_IN } = require("../../config/env");
 const jwt = require("jsonwebtoken");
 
@@ -54,20 +53,20 @@ async function hashPassword(password) {
 
 async function loginUser(body) {
   try {
-    const checkUser = await userModel.findOne({ email: body.email });
+    const checkUser = await userModel.findOne({ email: body.email }).select("+password");
     if (!checkUser) {
-      throw new Error("Email not found");
+      throw new Error("Invalid credentials");
     }
     const isPasswordValid = await comparePassword(
       body.password,
       checkUser.password
     );
     if (!isPasswordValid) {
-      throw new Error("Invalid password");
+      throw new Error("Invalid credentials");
     }
 
     const accessToken = await generateAccessToken({
-      username: checkUser.username,
+      id: checkUser.id,
     });
     return {
       accessToken,

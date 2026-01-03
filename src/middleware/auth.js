@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 const { JWT_SECRET } = require("../config/env");
 
 module.exports = (req, res, next) => {

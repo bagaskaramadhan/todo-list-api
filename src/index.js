@@ -1,4 +1,3 @@
-require("dotenv").config();
 const { PORT, MONGO_URI } = require("./config/env");
 const express = require("express");
 const mongoose = require("mongoose");

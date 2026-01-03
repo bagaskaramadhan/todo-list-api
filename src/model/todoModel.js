@@ -17,6 +17,7 @@ const todoSchema = new mongoose.Schema(
     active: { type: Boolean, default: true },
     completedAt: { type: Date },
     deadline: { type: Date, required: true },
+    userId: { type: String, trim: true, required: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
