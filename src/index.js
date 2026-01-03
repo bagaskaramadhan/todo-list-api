@@ -1,10 +1,15 @@
 const { PORT, MONGO_URI } = require("./config/env");
 const express = require("express");
 const mongoose = require("mongoose");
+const helmet = require("helmet");
+
 
 const todoRoutes = require("./routes/todoRoutes");
 const userRoutes = require("./routes/userRoutes");
 const app = express();
+
+// Helmet for security
+app.use(helmet());
 
 // Middleware
 app.use(express.json());
