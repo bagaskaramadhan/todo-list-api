@@ -2,7 +2,6 @@ const service = require("../services/todoServices/todo");
 
 exports.getTodos = async (req, res) => {
   try {
-    await service.authorizationAccess(req);
     const result = await service.getTodos(req.user.id);
     res.status(200).json(result);
   } catch (err) {
@@ -13,7 +12,6 @@ exports.getTodos = async (req, res) => {
 exports.getTodosById = async (req, res) => {
   try {
     const { id } = req.params;
-    await service.authorizationAccess(req);
     const result = await service.getTodosById(id, req.user.id);
     res.status(200).json(result);
   } catch (err) {
@@ -29,7 +27,6 @@ exports.createTodo = async (req, res) => {
       taskList: req.body.taskList,
       deadline: new Date(req.body.deadline),
     };
-    await service.authorizationAccess(req);
     await service.createTodo(body, req.user.id);
     res.status(201).json({ message: "Todo Created" });
   } catch (err) {
@@ -48,7 +45,6 @@ exports.updateTodo = async (req, res) => {
       completed: req.body.completed,
       updatedAt: new Date(),
     };
-    await service.authorizationAccess(req);
     await service.updateTodo(id, body, req.user.id);
     res.status(200).json({ message: "Todo Updated" });
   } catch (err) {
@@ -59,7 +55,6 @@ exports.updateTodo = async (req, res) => {
 exports.deleteTodo = async (req, res) => {
   try {
     const { id } = req.params;
-    await service.authorizationAccess(req);
     await service.deleteTodo(id, req.user.id);
     res.status(200).json({ message: "Todo deleted successfully" });
   } catch (err) {

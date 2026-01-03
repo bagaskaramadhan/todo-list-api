@@ -5,7 +5,7 @@ const userModel = require("../../model/userModel");
 
 async function getTodos(ownerId) {
   try {
-    return await todoModel.find({ active: true, active: true, ownerId });
+    return await todoModel.find({ active: true, ownerId });
   } catch (err) {
     throw err;
   }
@@ -20,6 +20,9 @@ async function getTodosById(id, ownerId) {
     if (!checkData) {
       throw new Error("Todo not found");
     }
+
+    await authorizationAccessTodo(checkData.ownerId, ownerId);
+   
     const result = await todoModel.findOne({ _id: id, active: true, ownerId });
     if (!result) {
       throw new Error("Todo not found");
@@ -77,9 +80,7 @@ async function deleteTodo(id, ownerId) {
       throw new Error("Todo not found");
     }
     // soft delete
-    if (checkData.ownerId !== ownerId) {
-      throw new Error("Unauthorized access");
-    }
+    await authorizationAccessTodo(checkData.ownerId, ownerId);
     return await todoModel.findByIdAndUpdate(id, { active: false });
   } catch (err) {
     throw err;
@@ -117,21 +118,17 @@ async function updateTodo(id, body, ownerId) {
         throw new Error("Invalid tasklist field");
       }
     });
-    if (checkData.ownerId !== ownerId) {
-      throw new Error("Unauthorized access");
-    }
+    await authorizationAccessTodo(checkData.ownerId, ownerId);
     return await todoModel.findByIdAndUpdate(id, body);
   } catch (err) {
     throw err;
   }
 }
 
-async function authorizationAccess(req) {
+async function authorizationAccessTodo(id, ownerId) {
   try {
-    let authUser = req.user.id;
-    const checkData = await userModel.findById(authUser);
-    if (!checkData) {
-      throw new Error("Invalid authorization");
+    if (id !== ownerId) {
+      throw new Error("Unauthorized access");
     }
   } catch (err) {
     throw err;
@@ -144,5 +141,5 @@ module.exports = {
   deleteTodo,
   updateTodo,
   getTodos,
-  authorizationAccess,
+  authorizationAccessTodo,
 };
