@@ -3,15 +3,15 @@ const todoModel = require("../../model/todoModel");
 const mongoose = require("mongoose");
 const userModel = require("../../model/userModel");
 
-async function getTodos(userId) {
+async function getTodos(ownerId) {
   try {
-    return await todoModel.find({ active: true, active: true, userId });
+    return await todoModel.find({ active: true, ownerId });
   } catch (err) {
     throw err;
   }
 }
 
-async function getTodosById(id, userId) {
+async function getTodosById(id, ownerId) {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error(`${id} invalid`);
@@ -20,7 +20,10 @@ async function getTodosById(id, userId) {
     if (!checkData) {
       throw new Error("Todo not found");
     }
-    const result = await todoModel.findOne({ _id: id, active: true, userId });
+
+    await authorizationAccessTodo(checkData.ownerId, ownerId);
+   
+    const result = await todoModel.findOne({ _id: id, active: true, ownerId });
     if (!result) {
       throw new Error("Todo not found");
     }
@@ -30,7 +33,7 @@ async function getTodosById(id, userId) {
   }
 }
 
-async function createTodo(body, userId) {
+async function createTodo(body, ownerId) {
   try {
     // validation deadline
     const currentDate = dayjs();
@@ -61,13 +64,13 @@ async function createTodo(body, userId) {
         throw new Error("Invalid tasklist field");
       }
     });
-    return await todoModel.create({ ...body, userId });
+    return await todoModel.create({ ...body, ownerId });
   } catch (err) {
     throw err;
   }
 }
 
-async function deleteTodo(id, userId) {
+async function deleteTodo(id, ownerId) {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error(`${id} invalid`);
@@ -77,16 +80,14 @@ async function deleteTodo(id, userId) {
       throw new Error("Todo not found");
     }
     // soft delete
-    if (checkData.userId !== userId) {
-      throw new Error("Unauthorized access");
-    }
+    await authorizationAccessTodo(checkData.ownerId, ownerId);
     return await todoModel.findByIdAndUpdate(id, { active: false });
   } catch (err) {
     throw err;
   }
 }
 
-async function updateTodo(id, body, userId) {
+async function updateTodo(id, body, ownerId) {
   try {
     // Id validation
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -117,21 +118,17 @@ async function updateTodo(id, body, userId) {
         throw new Error("Invalid tasklist field");
       }
     });
-    if (checkData.userId !== userId) {
-      throw new Error("Unauthorized access");
-    }
+    await authorizationAccessTodo(checkData.ownerId, ownerId);
     return await todoModel.findByIdAndUpdate(id, body);
   } catch (err) {
     throw err;
   }
 }
 
-async function authorizationAccess(req) {
+async function authorizationAccessTodo(id, ownerId) {
   try {
-    let authUser = req.user.id;
-    const checkData = await userModel.findById(authUser);
-    if (!checkData) {
-      throw new Error("Invalid authorization");
+    if (id !== ownerId) {
+      throw new Error("Unauthorized access");
     }
   } catch (err) {
     throw err;
@@ -144,5 +141,5 @@ module.exports = {
   deleteTodo,
   updateTodo,
   getTodos,
-  authorizationAccess,
+  authorizationAccessTodo,
 };
